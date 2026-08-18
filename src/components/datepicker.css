@@ -1,0 +1,374 @@
+/**
+ * Effiz Datepicker — self-contained styles.
+ *
+ * The component does NOT require Tailwind in consumer projects: every rule below
+ * is plain, prefixed CSS. Theming is driven by CSS custom properties, the most
+ * important being `--effiz-dp-primary`. Override it globally, per-instance via
+ * the `primary-color` prop, or by targeting `.effiz-dp`.
+ */
+
+.effiz-dp {
+  /* Theme tokens (override these to reskin). */
+  --effiz-dp-primary: #1a56db;
+  --effiz-dp-primary-contrast: #ffffff;
+  --effiz-dp-primary-hover: color-mix(in srgb, var(--effiz-dp-primary) 88%, #000);
+  --effiz-dp-range-bg: color-mix(in srgb, var(--effiz-dp-primary) 14%, transparent);
+
+  --effiz-dp-surface: #ffffff;
+  --effiz-dp-border: #e5e7eb;
+  --effiz-dp-text: #111827;
+  --effiz-dp-text-muted: #6b7280;
+  --effiz-dp-text-faded: #9ca3af;
+  --effiz-dp-hover: #f3f4f6;
+  --effiz-dp-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --effiz-dp-radius: 0.5rem;
+  --effiz-dp-focus-ring: color-mix(in srgb, var(--effiz-dp-primary) 45%, transparent);
+
+  color: var(--effiz-dp-text);
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.effiz-dp *,
+.effiz-dp *::before,
+.effiz-dp *::after {
+  box-sizing: border-box;
+}
+
+/* Dark theme — via `dark` prop (.effiz-dp--dark) or a `.dark` ancestor. */
+.effiz-dp--dark,
+.dark .effiz-dp {
+  --effiz-dp-primary-hover: color-mix(in srgb, var(--effiz-dp-primary) 82%, #fff);
+  --effiz-dp-range-bg: color-mix(in srgb, var(--effiz-dp-primary) 30%, transparent);
+  --effiz-dp-surface: #1f2937;
+  --effiz-dp-border: #374151;
+  --effiz-dp-text: #f9fafb;
+  --effiz-dp-text-muted: #9ca3af;
+  --effiz-dp-text-faded: #6b7280;
+  --effiz-dp-hover: #374151;
+  --effiz-dp-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.4);
+}
+
+/* ------------------------------------------------------------------ Input */
+
+.effiz-dp__control {
+  position: relative;
+  width: 100%;
+}
+
+.effiz-dp__input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.effiz-dp__leading-icon {
+  position: absolute;
+  left: 0.75rem;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+  color: var(--effiz-dp-text-faded);
+}
+
+.effiz-dp__input {
+  width: 100%;
+  padding: 0.625rem 2.25rem 0.625rem 2.5rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: var(--effiz-dp-text);
+  background-color: var(--effiz-dp-surface);
+  border: 1px solid var(--effiz-dp-border);
+  border-radius: var(--effiz-dp-radius);
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  cursor: pointer;
+}
+
+.effiz-dp__input::placeholder {
+  color: var(--effiz-dp-text-faded);
+}
+
+.effiz-dp__input:focus,
+.effiz-dp__input:focus-visible {
+  border-color: var(--effiz-dp-primary);
+  box-shadow: 0 0 0 3px var(--effiz-dp-focus-ring);
+}
+
+.effiz-dp__input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.effiz-dp__clear {
+  position: absolute;
+  right: 0.625rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  padding: 0;
+  color: var(--effiz-dp-text-faded);
+  background: transparent;
+  border: 0;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.effiz-dp__clear:hover {
+  color: var(--effiz-dp-text);
+  background-color: var(--effiz-dp-hover);
+}
+
+/* --------------------------------------------------------------- Dropdown */
+
+.effiz-dp__dropdown {
+  position: absolute;
+  left: 0;
+  z-index: 50;
+  margin-top: 0.5rem;
+}
+
+.effiz-dp__dropdown--top {
+  bottom: 100%;
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+}
+
+.effiz-dp-fade-enter-active,
+.effiz-dp-fade-leave-active {
+  transition: opacity 0.12s ease, transform 0.12s ease;
+}
+
+.effiz-dp-fade-enter-from,
+.effiz-dp-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-0.25rem);
+}
+
+/* ------------------------------------------------------------------ Panel */
+
+.effiz-dp__panel {
+  width: 20rem;
+  max-width: 100%;
+  padding: 1rem;
+  background-color: var(--effiz-dp-surface);
+  border: 1px solid var(--effiz-dp-border);
+  border-radius: 0.75rem;
+  box-shadow: var(--effiz-dp-shadow);
+  user-select: none;
+}
+
+.effiz-dp__panel--inline {
+  box-shadow: none;
+}
+
+.effiz-dp__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.effiz-dp__nav-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  color: var(--effiz-dp-text-muted);
+  background: transparent;
+  border: 0;
+  border-radius: var(--effiz-dp-radius);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.effiz-dp__nav-btn:hover:not(:disabled) {
+  color: var(--effiz-dp-text);
+  background-color: var(--effiz-dp-hover);
+}
+
+.effiz-dp__nav-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.effiz-dp__title {
+  flex: 1 1 auto;
+  margin: 0 0.25rem;
+  padding: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--effiz-dp-text);
+  background: transparent;
+  border: 0;
+  border-radius: var(--effiz-dp-radius);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.effiz-dp__title:hover:not(:disabled) {
+  background-color: var(--effiz-dp-hover);
+}
+
+.effiz-dp__title:disabled {
+  cursor: default;
+}
+
+.effiz-dp__weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  margin-bottom: 0.25rem;
+}
+
+.effiz-dp__weekday {
+  padding: 0.25rem 0;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1rem;
+  text-align: center;
+  color: var(--effiz-dp-text-muted);
+}
+
+.effiz-dp__grid {
+  display: grid;
+}
+
+.effiz-dp__grid--days {
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.effiz-dp__grid--wide {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.25rem;
+}
+
+/* ------------------------------------------------------------------ Cells */
+
+.effiz-dp__cellwrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Continuous light band for the days strictly inside a range. */
+.effiz-dp__cellwrap.is-in-range {
+  background-color: var(--effiz-dp-range-bg);
+}
+
+.effiz-dp__cell {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: var(--effiz-dp-text);
+  background: transparent;
+  border: 0;
+  border-radius: var(--effiz-dp-radius);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.effiz-dp__cell--day {
+  aspect-ratio: 1 / 1;
+}
+
+.effiz-dp__cell--wide {
+  padding: 0.625rem 0;
+}
+
+.effiz-dp__cell:hover:not(.is-disabled):not(.is-selected) {
+  background-color: var(--effiz-dp-hover);
+}
+
+.effiz-dp__cell.is-muted {
+  color: var(--effiz-dp-text-faded);
+}
+
+.effiz-dp__cell.is-today:not(.is-selected) {
+  color: var(--effiz-dp-primary);
+  font-weight: 700;
+  box-shadow: inset 0 0 0 1px var(--effiz-dp-primary);
+}
+
+.effiz-dp__cell.is-selected {
+  color: var(--effiz-dp-primary-contrast);
+  background-color: var(--effiz-dp-primary);
+  font-weight: 600;
+}
+
+.effiz-dp__cell.is-selected:hover {
+  background-color: var(--effiz-dp-primary-hover);
+}
+
+/* Endpoints round only their outer corners so the pill meets the band flush. */
+.effiz-dp__cell.is-range-start {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.effiz-dp__cell.is-range-end {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.effiz-dp__cell.is-disabled {
+  color: var(--effiz-dp-text-faded);
+  cursor: not-allowed;
+  opacity: 0.45;
+  text-decoration: line-through;
+}
+
+.effiz-dp__cell:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--effiz-dp-surface), 0 0 0 4px var(--effiz-dp-primary);
+}
+
+/* ----------------------------------------------------------------- Footer */
+
+.effiz-dp__footer {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--effiz-dp-border);
+}
+
+.effiz-dp__footer-btn {
+  flex: 1 1 0;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border-radius: var(--effiz-dp-radius);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.effiz-dp__footer-btn--today {
+  color: var(--effiz-dp-primary-contrast);
+  background-color: var(--effiz-dp-primary);
+  border: 1px solid var(--effiz-dp-primary);
+}
+
+.effiz-dp__footer-btn--today:hover {
+  background-color: var(--effiz-dp-primary-hover);
+  border-color: var(--effiz-dp-primary-hover);
+}
+
+.effiz-dp__footer-btn--clear {
+  color: var(--effiz-dp-text);
+  background-color: transparent;
+  border: 1px solid var(--effiz-dp-border);
+}
+
+.effiz-dp__footer-btn--clear:hover {
+  background-color: var(--effiz-dp-hover);
+}

@@ -1,0 +1,67 @@
+{
+  "name": "@effiz/datepicker",
+  "version": "0.1.0",
+  "description": "A Flowbite-style, themeable datepicker component for Vue 3 with date, month, year and range selection.",
+  "type": "module",
+  "license": "MIT",
+  "author": "La French Audit",
+  "keywords": [
+    "vue",
+    "vue3",
+    "datepicker",
+    "date-picker",
+    "calendar",
+    "tailwind",
+    "flowbite",
+    "date-range",
+    "month-picker",
+    "year-picker"
+  ],
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/effiz-datepicker.umd.cjs",
+  "module": "./dist/effiz-datepicker.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/effiz-datepicker.js",
+      "require": "./dist/effiz-datepicker.umd.cjs"
+    },
+    "./style.css": "./dist/effiz-datepicker.css"
+  },
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "scripts": {
+    "dev": "npm run gen:docs && vite",
+    "build": "vue-tsc -b --force && vite build",
+    "build:demo": "npm run gen:docs && vite build --mode demo",
+    "gen:docs": "node scripts/gen-docs.mjs",
+    "preview": "vite preview",
+    "type-check": "vue-tsc --noEmit -p tsconfig.app.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "coverage": "vitest run --coverage"
+  },
+  "peerDependencies": {
+    "vue": "^3.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "@vitest/coverage-v8": "^2.1.8",
+    "@vue/test-utils": "^2.4.6",
+    "autoprefixer": "^10.4.20",
+    "jsdom": "^25.0.1",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17",
+    "typescript": "~5.7.2",
+    "vite": "^6.0.7",
+    "vite-plugin-dts": "^4.4.0",
+    "vitest": "^2.1.8",
+    "vue": "^3.5.13",
+    "vue-tsc": "^2.2.0"
+  }
+}

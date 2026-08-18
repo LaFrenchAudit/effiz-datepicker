@@ -1,0 +1,49 @@
+name: Build & publish doc image
+
+on:
+  # Publie l'image quand tu crées une release GitHub.
+  release:
+    types: [published]
+  # Permet aussi un déclenchement manuel depuis l'onglet Actions.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    name: Build and push to GHCR
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Compute image name and version
+        id: meta
+        run: |
+          echo "image=ghcr.io/$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')/effiz-datepicker-doc" >> "$GITHUB_OUTPUT"
+          if [ -n "${{ github.event.release.tag_name }}" ]; then
+            echo "version=${{ github.event.release.tag_name }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build image
+        run: docker build -t "${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.version }}" .
+
+      - name: Push versioned tag
+        run: docker push "${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.version }}"
+
+      # `latest` (suivi par Watchtower) — sauf pour une pré-release.
+      - name: Update :latest
+        if: github.event.release.prerelease != true
+        run: |
+          docker tag "${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.version }}" "${{ steps.meta.outputs.image }}:latest"
+          docker push "${{ steps.meta.outputs.image }}:latest"
