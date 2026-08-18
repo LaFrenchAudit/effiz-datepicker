@@ -124,28 +124,25 @@
 
 /* --------------------------------------------------------------- Dropdown */
 
+/*
+ * The dropdown is rendered in the top layer via the Popover API (see
+ * EffizDatepicker.vue) so it is never clipped by, nor hidden behind, an
+ * ancestor — including a modal <dialog>. Position (fixed top/left) is set
+ * inline by the component. Here we reset the [popover] UA defaults (border,
+ * padding, background, inset, margin) and provide the fixed fallback.
+ */
 .effiz-dp__dropdown {
-  position: absolute;
-  left: 0;
+  position: fixed;
   z-index: 50;
-  margin-top: 0.5rem;
-}
-
-.effiz-dp__dropdown--top {
-  bottom: 100%;
-  margin-top: 0;
-  margin-bottom: 0.5rem;
-}
-
-.effiz-dp-fade-enter-active,
-.effiz-dp-fade-leave-active {
-  transition: opacity 0.12s ease, transform 0.12s ease;
-}
-
-.effiz-dp-fade-enter-from,
-.effiz-dp-fade-leave-to {
-  opacity: 0;
-  transform: translateY(-0.25rem);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  inset: auto;
+  width: auto;
+  max-width: 100vw;
+  overflow: visible;
+  background: transparent;
+  color: inherit;
 }
 
 /* ------------------------------------------------------------------ Panel */

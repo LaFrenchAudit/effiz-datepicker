@@ -16,6 +16,7 @@ Un composant **datepicker pour Vue 3** au style [Flowbite](https://flowbite.com/
 - 🎨 **Couleur primaire personnalisable** (prop `primary-color` ou variable CSS `--effiz-dp-primary`).
 - 🌗 **Thème clair / sombre**, 🌍 **localisation** `Intl`, ⌨️ **navigation clavier** + ARIA.
 - 🧩 **Autonome** : styles encapsulés, **Tailwind non requis** côté projet consommateur.
+- 🪟 **Top layer** (Popover API) : s'affiche correctement dans un `<dialog>` modal ou un conteneur `overflow:hidden`, sans être rogné ni masqué.
 - 📦 TypeScript, `v-model`, bornes `min`/`max`, jours désactivés, affichage inline.
 
 ## Installation
