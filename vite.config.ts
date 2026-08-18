@@ -35,6 +35,8 @@ export default defineConfig(({ mode }) => {
           },
         }
       : {
+          // Do not copy the demo `public/` (llms.txt, api.json…) into the npm package.
+          publicDir: false as const,
           build: {
             lib: {
               entry: fileURLToPath(new URL('./src/index.ts', import.meta.url)),

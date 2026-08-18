@@ -35,9 +35,10 @@
     "**/*.css"
   ],
   "scripts": {
-    "dev": "vite",
+    "dev": "npm run gen:docs && vite",
     "build": "vue-tsc -b --force && vite build",
-    "build:demo": "vite build --mode demo",
+    "build:demo": "npm run gen:docs && vite build --mode demo",
+    "gen:docs": "node scripts/gen-docs.mjs",
     "preview": "vite preview",
     "type-check": "vue-tsc --noEmit -p tsconfig.app.json",
     "test": "vitest run",

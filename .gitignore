@@ -144,3 +144,8 @@ vite.config.ts.timestamp-*
 
 # Build output
 dist-demo/
+
+# Generated docs artifacts (built by scripts/gen-docs.mjs)
+public/api.json
+public/llms.txt
+public/llms-full.txt
