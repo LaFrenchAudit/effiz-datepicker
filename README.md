@@ -4,6 +4,8 @@ Un composant **datepicker pour Vue 3** au style [Flowbite](https://flowbite.com/
 **sans dépendance à Flowbite**. Pensé pour être réutilisé dans les différents projets de
 l'entreprise, il est autonome, léger (~6 kB gzip JS + ~1,5 kB gzip CSS) et entièrement typé.
 
+👉 **Démo en ligne :** https://lafrenchaudit.github.io/effiz-datepicker/
+
 ## Fonctionnalités
 
 - 🎯 **Quatre granularités** de sélection : une **date**, un **mois** seul, une **année** seule.
@@ -173,8 +175,25 @@ ancêtre (convention Tailwind).
 npm install
 npm run dev          # démo interactive (toutes les variantes)
 npm run build        # build de la librairie (dist/)
+npm run build:demo   # build de la démo (dist-demo/) — déployée sur Pages
 npm run type-check   # vérification TypeScript
+npm run test         # tests unitaires (Vitest)
+npm run coverage     # tests + rapport de couverture
 ```
+
+### Tests
+
+Le composant est couvert par **Vitest** + **@vue/test-utils** (67 tests) :
+utilitaires de dates (100 %), sélection date/mois/année, plages, navigation,
+bornes `min`/`max`, jours désactivés, clavier, popover, thème. Couverture ≈ 94 %.
+
+### Intégration continue & déploiement
+
+- `.github/workflows/ci.yml` — type-check, tests et build à chaque push / PR.
+- `.github/workflows/deploy-pages.yml` — construit la démo et la publie sur
+  **GitHub Pages** à chaque merge sur `main` (ou manuellement via l'onglet
+  Actions). Pré-requis : dans les réglages du dépôt, _Settings → Pages →
+  Source = GitHub Actions_.
 
 ## Licence
 
