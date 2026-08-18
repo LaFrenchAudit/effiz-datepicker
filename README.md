@@ -194,7 +194,3 @@ bornes `min`/`max`, jours désactivés, clavier, popover, thème. Couverture ≈
   **GitHub Pages** à chaque merge sur `main` (ou manuellement via l'onglet
   Actions). Pré-requis : dans les réglages du dépôt, _Settings → Pages →
   Source = GitHub Actions_.
-
-## Licence
-
-MIT — La French Audit.
