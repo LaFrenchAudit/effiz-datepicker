@@ -1,0 +1,12 @@
+node_modules
+dist
+dist-demo
+public/api.json
+public/llms.txt
+public/llms-full.txt
+coverage
+.git
+.github
+*.log
+.vscode
+.idea

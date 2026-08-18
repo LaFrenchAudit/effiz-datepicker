@@ -1,0 +1,58 @@
+# Déploiement du site de documentation Effiz Datepicker.
+#
+# L'image est construite et publiée sur GHCR par la CI (.github/workflows/
+# docker-publish.yml) à chaque **release GitHub**. Watchtower surveille le tag
+# `:latest` et recrée automatiquement le conteneur quand une nouvelle image
+# est publiée — aucune action manuelle sur le serveur après une release.
+#
+# Cloudflared (géré de ton côté) doit router
+#   datepicker-doc.lafrenchexpert.fr  ->  ce conteneur
+# Deux options, au choix (voir les commentaires plus bas).
+
+services:
+  datepicker-doc:
+    image: ghcr.io/lafrenchaudit/effiz-datepicker-doc:latest
+    container_name: datepicker-doc
+    restart: unless-stopped
+
+    # --- Exposition vers cloudflared -------------------------------------
+    # Option A (par défaut) : publier un port sur l'hôte. Si cloudflared tourne
+    # en natif sur le serveur, pointe l'ingress vers http://localhost:8080.
+    ports:
+      - '8080:80'
+    # Option B : si cloudflared tourne en conteneur, commente `ports` ci-dessus,
+    # attache ce service au réseau de cloudflared (voir `networks` en bas) et
+    # pointe l'ingress vers http://datepicker-doc:80.
+
+    # Watchtower ne surveillera QUE les conteneurs portant ce label.
+    labels:
+      - 'com.centurylinklabs.watchtower.enable=true'
+
+    networks:
+      - datepicker-doc
+    # - cloudflared   # décommente pour l'option B
+
+  watchtower:
+    image: containrrr/watchtower:latest
+    container_name: datepicker-doc-watchtower
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Image GHCR privée ? Monte un config.json contenant un token de pull :
+      # - /root/.docker/config.json:/config.json:ro
+    environment:
+      - WATCHTOWER_CLEANUP=true # supprime les anciennes images après update
+      - WATCHTOWER_LABEL_ENABLE=true # ne touche qu'aux conteneurs labellisés
+      - WATCHTOWER_POLL_INTERVAL=300 # vérifie GHCR toutes les 5 minutes
+      - WATCHTOWER_ROLLING_RESTART=true
+      - TZ=Europe/Paris
+    networks:
+      - datepicker-doc
+
+networks:
+  datepicker-doc:
+    name: datepicker-doc
+  # Option B : réseau externe déjà utilisé par cloudflared.
+  # cloudflared:
+  #   external: true
+  #   name: <nom-du-reseau-cloudflared>

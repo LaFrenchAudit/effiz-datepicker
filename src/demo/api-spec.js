@@ -16,7 +16,7 @@ export const meta = {
   description:
     'Composant datepicker Vue 3 au style Flowbite, sans dépendance à Flowbite. Sélection de date, de mois ou d’année — chacune disponible aussi en plage (range). Couleur primaire personnalisable, thème clair/sombre, localisation Intl, navigation clavier et styles encapsulés (Tailwind non requis côté projet).',
   repository: 'https://github.com/LaFrenchAudit/effiz-datepicker',
-  demo: 'https://lafrenchaudit.github.io/effiz-datepicker/',
+  demo: 'https://datepicker-doc.lafrenchexpert.fr/',
   license: 'MIT',
   framework: 'Vue 3 (>=3.3)',
   peerDependencies: { vue: '^3.3.0' },

@@ -3,11 +3,11 @@
 Un composant **datepicker pour Vue 3** au style [Flowbite](https://flowbite.com/docs/plugins/datepicker/),
 **sans dépendance à Flowbite**. Autonome, léger (~6 kB gzip JS + ~1,5 kB gzip CSS) et entièrement typé.
 
-- 📘 **Documentation complète & démo interactive :** https://lafrenchaudit.github.io/effiz-datepicker/
+- 📘 **Documentation complète & démo interactive :** https://datepicker-doc.lafrenchexpert.fr/
 - 🤖 **Docs pour machines / IA :**
-  [`llms.txt`](https://lafrenchaudit.github.io/effiz-datepicker/llms.txt) ·
-  [`llms-full.txt`](https://lafrenchaudit.github.io/effiz-datepicker/llms-full.txt) ·
-  [`api.json`](https://lafrenchaudit.github.io/effiz-datepicker/api.json)
+  [`llms.txt`](https://datepicker-doc.lafrenchexpert.fr/llms.txt) ·
+  [`llms-full.txt`](https://datepicker-doc.lafrenchexpert.fr/llms-full.txt) ·
+  [`api.json`](https://datepicker-doc.lafrenchexpert.fr/api.json)
 
 ## Fonctionnalités
 
@@ -80,9 +80,9 @@ sur un ancêtre.
 
 👉 **Référence exhaustive** (toutes les props avec types et défauts, événements, méthodes, types
 TypeScript, variables CSS, raccourcis clavier et recettes) :
-la [documentation en ligne](https://lafrenchaudit.github.io/effiz-datepicker/) ou, pour les outils
-et agents, [`api.json`](https://lafrenchaudit.github.io/effiz-datepicker/api.json) /
-[`llms-full.txt`](https://lafrenchaudit.github.io/effiz-datepicker/llms-full.txt).
+la [documentation en ligne](https://datepicker-doc.lafrenchexpert.fr/) ou, pour les outils
+et agents, [`api.json`](https://datepicker-doc.lafrenchexpert.fr/api.json) /
+[`llms-full.txt`](https://datepicker-doc.lafrenchexpert.fr/llms-full.txt).
 
 ## Développement
 
@@ -90,7 +90,7 @@ et agents, [`api.json`](https://lafrenchaudit.github.io/effiz-datepicker/api.jso
 npm install
 npm run dev          # documentation + démo interactive
 npm run build        # build de la librairie (dist/)
-npm run build:demo   # build du site de docs (dist-demo/) — déployé sur Pages
+npm run build:demo   # build du site de docs (dist-demo/) — servi par Docker/nginx
 npm run test         # tests unitaires (Vitest, ~94 % de couverture)
 npm run type-check   # vérification TypeScript
 ```
@@ -99,6 +99,29 @@ Le site de docs et les fichiers `api.json` / `llms*.txt` sont générés depuis 
 de vérité** (`src/demo/api-spec.js`) par `scripts/gen-docs.mjs`, donc toujours synchronisés avec
 le composant.
 
-CI/CD : `.github/workflows/ci.yml` (type-check, tests, build) et `deploy-pages.yml` (publication
-de la démo sur GitHub Pages au merge sur `main`, ou via l'onglet Actions). Pré-requis Pages :
-_Settings → Pages → Source = GitHub Actions_.
+## Déploiement (Docker + Watchtower)
+
+Le site de docs est packagé en image Docker (build Vite → nginx) et hébergé sur notre serveur
+(Portainer + cloudflared), pas sur GitHub Pages.
+
+- `.github/workflows/ci.yml` — type-check, tests et build à chaque push / PR.
+- `.github/workflows/docker-publish.yml` — à chaque **release GitHub**, construit l'image et la
+  pousse sur **GHCR** taguée avec la version de la release + `latest`
+  (`ghcr.io/lafrenchaudit/effiz-datepicker-doc`).
+- `docker-compose.yml` — à déployer sur le serveur : le conteneur nginx + **Watchtower**, qui
+  surveille le tag `:latest` et recrée le conteneur automatiquement à chaque nouvelle image.
+
+Publier une nouvelle version du site = créer une release GitHub (ou lancer le workflow
+manuellement). Une **pré-release** ne met pas à jour `:latest` (donc pas de déploiement auto).
+
+Sur le serveur :
+
+```bash
+docker compose up -d
+```
+
+Puis router `datepicker-doc.lafrenchexpert.fr` vers le conteneur via cloudflared (port `8080`
+publié par défaut, ou réseau Docker partagé — voir les commentaires du `docker-compose.yml`).
+
+> Image GHCR : rends le package **public** (Packages → Package settings → Change visibility) pour
+> un pull anonyme par Watchtower, ou monte un `config.json` avec un token de pull (voir le compose).
