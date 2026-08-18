@@ -9,9 +9,17 @@
  * Plain JS (with JSDoc) on purpose, so Node can import it without a TS loader.
  */
 
+// Version injectée au build (VITE_APP_VERSION, alimentée par le tag de release
+// dans la CI Docker). Repli `0.0.0-dev` en local. `import.meta.env` est absent
+// quand ce module est importé par Node (scripts/gen-docs.mjs) — d'où le `?.` ;
+// gen-docs réinjecte la version via process.env.
+const VERSION =
+  (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_APP_VERSION) ||
+  '0.0.0-dev'
+
 export const meta = {
   name: '@effiz/datepicker',
-  version: '0.1.0',
+  version: VERSION,
   title: 'Effiz Datepicker',
   description:
     'Composant datepicker Vue 3 au style Flowbite, sans dépendance à Flowbite. Sélection de date, de mois ou d’année — chacune disponible aussi en plage (range). Couleur primaire personnalisable, thème clair/sombre, localisation Intl, navigation clavier et styles encapsulés (Tailwind non requis côté projet).',

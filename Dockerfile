@@ -8,6 +8,10 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 
+# Version affichée dans la doc (passée par la CI depuis le tag de release).
+ARG APP_VERSION=0.0.0-dev
+ENV VITE_APP_VERSION=$APP_VERSION
+
 # Build the static site (runs gen:docs then `vite build --mode demo`).
 COPY . .
 RUN npm run build:demo

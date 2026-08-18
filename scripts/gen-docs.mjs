@@ -29,6 +29,12 @@ const here = dirname(fileURLToPath(import.meta.url))
 const outDir = resolve(here, '../public')
 mkdirSync(outDir, { recursive: true })
 
+// The Vue app reads the version from import.meta.env at Vite build time; this
+// Node script gets it from the environment so api.json/llms*.txt stay in sync.
+if (process.env.VITE_APP_VERSION) {
+  meta.version = process.env.VITE_APP_VERSION
+}
+
 const base = meta.demo.replace(/\/$/, '')
 
 /* --------------------------------------------------------------- api.json */
