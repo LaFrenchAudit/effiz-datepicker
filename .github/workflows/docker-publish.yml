@@ -30,13 +30,20 @@ jobs:
         run: |
           echo "image=ghcr.io/$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')/effiz-datepicker-doc" >> "$GITHUB_OUTPUT"
           if [ -n "${{ github.event.release.tag_name }}" ]; then
-            echo "version=${{ github.event.release.tag_name }}" >> "$GITHUB_OUTPUT"
+            TAG="${{ github.event.release.tag_name }}"
           else
-            echo "version=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+            TAG="${GITHUB_SHA::7}"
           fi
+          echo "version=$TAG" >> "$GITHUB_OUTPUT"
+          # Version affichée (sans le préfixe « v » éventuel du tag).
+          echo "appversion=${TAG#v}" >> "$GITHUB_OUTPUT"
 
       - name: Build image
-        run: docker build -t "${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.version }}" .
+        run: |
+          docker build \
+            --build-arg APP_VERSION="${{ steps.meta.outputs.appversion }}" \
+            -t "${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.version }}" \
+            .
 
       - name: Push versioned tag
         run: docker push "${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.version }}"

@@ -16,6 +16,7 @@ Un composant **datepicker pour Vue 3** au style [Flowbite](https://flowbite.com/
 - 🎨 **Couleur primaire personnalisable** (prop `primary-color` ou variable CSS `--effiz-dp-primary`).
 - 🌗 **Thème clair / sombre**, 🌍 **localisation** `Intl`, ⌨️ **navigation clavier** + ARIA.
 - 🧩 **Autonome** : styles encapsulés, **Tailwind non requis** côté projet consommateur.
+- 🪟 **Top layer** (Popover API) : s'affiche correctement dans un `<dialog>` modal ou un conteneur `overflow:hidden`, sans être rogné ni masqué.
 - 📦 TypeScript, `v-model`, bornes `min`/`max`, jours désactivés, affichage inline.
 
 ## Installation
@@ -125,3 +126,25 @@ publié par défaut, ou réseau Docker partagé — voir les commentaires du `do
 
 > Image GHCR : rends le package **public** (Packages → Package settings → Change visibility) pour
 > un pull anonyme par Watchtower, ou monte un `config.json` avec un token de pull (voir le compose).
+
+## Publication de la librairie (npm)
+
+La librairie est publiée sur **npmjs.com** sous `@effiz/datepicker`, à chaque **release GitHub**,
+par `.github/workflows/npm-publish.yml`. Le workflow aligne la version publiée sur le tag de la
+release (sans le `v`), reconstruit `dist/` (via `prepublishOnly`) puis `npm publish`.
+
+Pré-requis (une seule fois) :
+
+- Posséder l'organisation npm **`@effiz`** (l'utilisateur qui publie doit y avoir le droit).
+- Créer un **access token npm** de type _Automation_ et l'ajouter en secret du dépôt :
+  `Settings → Secrets and variables → Actions → New repository secret`, nom **`NPM_TOKEN`**.
+
+Publier une version = créer une release GitHub avec le tag voulu (ex. `v1.0.0`). La même release
+déclenche aussi la publication de l'image de doc. Pour un essai manuel : onglet _Actions →
+Publish package to npm → Run workflow_ (publie alors la version présente dans `package.json`).
+
+Côté projet consommateur, rien de spécial (package public) :
+
+```bash
+npm install @effiz/datepicker
+```

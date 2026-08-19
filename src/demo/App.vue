@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { EffizDatepicker, type DatepickerModel, type RangeValue } from '../index'
 import CodeBlock from './CodeBlock.vue'
+import EffizLogo from './EffizLogo.vue'
 // Single source of truth — also emitted as api.json / llms*.txt (see scripts/gen-docs.mjs).
 import { cssVars, events, examples, keyboard, meta, methods, props, types } from './api-spec.js'
 
@@ -53,6 +54,27 @@ const sections = [
   { id: 'ia', label: 'Pour les IA' },
 ]
 
+// Scroll-spy: highlight the section currently in view in the side panel.
+const activeSection = ref(sections[0].id)
+let observer: IntersectionObserver | undefined
+
+onMounted(() => {
+  observer = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) activeSection.value = entry.target.id
+      }
+    },
+    { rootMargin: '-45% 0px -50% 0px', threshold: 0 },
+  )
+  for (const s of sections) {
+    const el = document.getElementById(s.id)
+    if (el) observer.observe(el)
+  }
+})
+
+onBeforeUnmount(() => observer?.disconnect())
+
 const wrapperProps = computed(() => props.filter((p) => !p.component))
 const inputProps = computed(() => props.filter((p) => p.component === 'EffizDatepicker'))
 
@@ -67,24 +89,19 @@ const pluginExample = examples.find((e) => e.id === 'plugin')!
     <div
       class="sticky top-0 z-40 border-b border-gray-200 bg-white/90 backdrop-blur dark:border-gray-800 dark:bg-gray-900/90"
     >
-      <div class="mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3">
-        <span class="text-lg font-bold">📅 Effiz Datepicker</span>
-        <span
-          class="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-500 dark:bg-gray-800"
-        >
-          v{{ meta.version }}
-        </span>
-        <nav class="ml-auto hidden flex-wrap gap-1 lg:flex">
-          <a
-            v-for="s in sections"
-            :key="s.id"
-            :href="`#${s.id}`"
-            class="rounded-md px-2.5 py-1 text-sm text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
+      <div
+        class="mx-auto flex w-full max-w-7xl flex-wrap items-center gap-x-3 gap-y-2 px-4 py-3 sm:flex-nowrap sm:px-6 lg:px-8"
+      >
+        <span class="flex shrink-0 items-center gap-2 whitespace-nowrap text-lg font-bold">
+          <EffizLogo :size="28" />
+          Effiz Datepicker
+          <span
+            class="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-500 dark:bg-gray-800"
           >
-            {{ s.label }}
-          </a>
-        </nav>
-        <div class="flex items-center gap-2">
+            v{{ meta.version }}
+          </span>
+        </span>
+        <div class="ml-auto flex shrink-0 items-center gap-2">
           <a
             :href="meta.repository"
             target="_blank"
@@ -101,11 +118,56 @@ const pluginExample = examples.find((e) => e.id === 'plugin')!
           </button>
         </div>
       </div>
+
+      <!-- Compact scroll-nav for small screens (the side panel replaces it on desktop). -->
+      <nav
+        class="flex gap-1 overflow-x-auto border-t border-gray-100 px-4 py-2 dark:border-gray-800 lg:hidden"
+      >
+        <a
+          v-for="s in sections"
+          :key="s.id"
+          :href="`#${s.id}`"
+          class="whitespace-nowrap rounded-md px-2.5 py-1 text-sm transition"
+          :class="
+            activeSection === s.id
+              ? 'bg-indigo-600 text-white'
+              : 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
+          "
+        >
+          {{ s.label }}
+        </a>
+      </nav>
     </div>
 
-    <div class="mx-auto max-w-6xl px-4 py-10">
+    <div class="mx-auto flex w-full max-w-7xl gap-8 px-4 sm:px-6 lg:px-8">
+      <!-- Side panel: sticky table of contents with scroll progress -->
+      <aside
+        class="sticky top-16 hidden h-[calc(100vh-4rem)] w-56 shrink-0 self-start overflow-y-auto py-10 lg:block"
+      >
+        <p class="mb-3 px-3 text-xs font-semibold uppercase tracking-wide text-gray-400">
+          Sur cette page
+        </p>
+        <nav class="space-y-0.5">
+          <a
+            v-for="s in sections"
+            :key="s.id"
+            :href="`#${s.id}`"
+            class="block border-l-2 py-1.5 pl-3 text-sm transition"
+            :class="
+              activeSection === s.id
+                ? 'border-indigo-600 font-medium text-indigo-700 dark:border-indigo-400 dark:text-indigo-300'
+                : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100'
+            "
+            @click="activeSection = s.id"
+          >
+            {{ s.label }}
+          </a>
+        </nav>
+      </aside>
+
+      <main class="min-w-0 flex-1 py-10">
       <!-- Aperçu -->
-      <section id="apercu" class="scroll-mt-20">
+      <section id="apercu" class="scroll-mt-24">
         <h1 class="text-4xl font-bold tracking-tight">Effiz Datepicker</h1>
         <p class="mt-3 max-w-3xl text-lg text-gray-600 dark:text-gray-300">
           {{ meta.description }}
@@ -147,10 +209,10 @@ const pluginExample = examples.find((e) => e.id === 'plugin')!
       </section>
 
       <!-- Installation -->
-      <section id="installation" class="mt-14 scroll-mt-20">
+      <section id="installation" class="mt-14 scroll-mt-24">
         <h2 class="text-2xl font-semibold">Installation</h2>
         <div class="mt-4 grid gap-4 lg:grid-cols-2">
-          <div>
+          <div class="min-w-0">
             <p class="mb-2 text-sm text-gray-600 dark:text-gray-400">{{ installExample.description }}</p>
             <CodeBlock :code="installExample.code" :lang="installExample.lang" />
             <p class="mb-2 mt-4 text-sm text-gray-600 dark:text-gray-400">
@@ -158,7 +220,7 @@ const pluginExample = examples.find((e) => e.id === 'plugin')!
             </p>
             <CodeBlock :code="pluginExample.code" :lang="pluginExample.lang" />
           </div>
-          <div>
+          <div class="min-w-0">
             <p class="mb-2 text-sm text-gray-600 dark:text-gray-400">{{ quickStart.description }}</p>
             <CodeBlock :code="quickStart.code" :lang="quickStart.lang" />
           </div>
@@ -166,7 +228,7 @@ const pluginExample = examples.find((e) => e.id === 'plugin')!
       </section>
 
       <!-- Exemples en direct -->
-      <section id="exemples" class="mt-14 scroll-mt-20">
+      <section id="exemples" class="mt-14 scroll-mt-24">
         <h2 class="text-2xl font-semibold">Exemples en direct</h2>
         <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
           Trois granularités (<code>date</code>, <code>month</code>, <code>year</code>), chacune
@@ -219,7 +281,7 @@ const pluginExample = examples.find((e) => e.id === 'plugin')!
       </section>
 
       <!-- Props -->
-      <section id="props" class="mt-14 scroll-mt-20">
+      <section id="props" class="mt-14 scroll-mt-24">
         <h2 class="text-2xl font-semibold">Props</h2>
         <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
           Communes à <code>EffizDatepicker</code> et <code>EffizCalendar</code>.
@@ -269,7 +331,7 @@ const pluginExample = examples.find((e) => e.id === 'plugin')!
       </section>
 
       <!-- Événements -->
-      <section id="evenements" class="mt-14 scroll-mt-20">
+      <section id="evenements" class="mt-14 scroll-mt-24">
         <h2 class="text-2xl font-semibold">Événements</h2>
         <div class="mt-4 overflow-x-auto">
           <table class="w-full min-w-[560px] border-collapse text-sm">
@@ -292,7 +354,7 @@ const pluginExample = examples.find((e) => e.id === 'plugin')!
       </section>
 
       <!-- Méthodes -->
-      <section id="methodes" class="mt-14 scroll-mt-20">
+      <section id="methodes" class="mt-14 scroll-mt-24">
         <h2 class="text-2xl font-semibold">Méthodes (via <code>ref</code>)</h2>
         <div class="mt-4 overflow-x-auto">
           <table class="w-full min-w-[560px] border-collapse text-sm">
@@ -315,7 +377,7 @@ const pluginExample = examples.find((e) => e.id === 'plugin')!
       </section>
 
       <!-- Types -->
-      <section id="types" class="mt-14 scroll-mt-20">
+      <section id="types" class="mt-14 scroll-mt-24">
         <h2 class="text-2xl font-semibold">Types TypeScript</h2>
         <div class="mt-4 overflow-x-auto">
           <table class="w-full min-w-[560px] border-collapse text-sm">
@@ -338,7 +400,7 @@ const pluginExample = examples.find((e) => e.id === 'plugin')!
       </section>
 
       <!-- Thème -->
-      <section id="theme" class="mt-14 scroll-mt-20">
+      <section id="theme" class="mt-14 scroll-mt-24">
         <h2 class="text-2xl font-semibold">Thème — variables CSS</h2>
         <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
           Toutes surchargeables sur <code>.effiz-dp</code>. Le mode sombre s'active via la prop
@@ -365,7 +427,7 @@ const pluginExample = examples.find((e) => e.id === 'plugin')!
       </section>
 
       <!-- Clavier -->
-      <section id="clavier" class="mt-14 scroll-mt-20">
+      <section id="clavier" class="mt-14 scroll-mt-24">
         <h2 class="text-2xl font-semibold">Navigation clavier & accessibilité</h2>
         <div class="mt-4 overflow-x-auto">
           <table class="w-full min-w-[560px] border-collapse text-sm">
@@ -388,10 +450,10 @@ const pluginExample = examples.find((e) => e.id === 'plugin')!
       </section>
 
       <!-- Recettes -->
-      <section id="recettes" class="mt-14 scroll-mt-20">
+      <section id="recettes" class="mt-14 scroll-mt-24">
         <h2 class="text-2xl font-semibold">Recettes & exemples de code</h2>
         <div class="mt-5 grid gap-6 lg:grid-cols-2">
-          <div v-for="ex in examples" :key="ex.id">
+          <div v-for="ex in examples" :key="ex.id" class="min-w-0">
             <h3 class="text-base font-semibold">{{ ex.title }}</h3>
             <p class="mb-2 mt-0.5 text-sm text-gray-600 dark:text-gray-400">{{ ex.description }}</p>
             <CodeBlock :code="ex.code" :lang="ex.lang" />
@@ -400,7 +462,7 @@ const pluginExample = examples.find((e) => e.id === 'plugin')!
       </section>
 
       <!-- Pour les IA / machines -->
-      <section id="ia" class="mt-14 scroll-mt-20">
+      <section id="ia" class="mt-14 scroll-mt-24">
         <h2 class="text-2xl font-semibold">Ressources pour machines & IA</h2>
         <p class="mt-1 max-w-3xl text-sm text-gray-600 dark:text-gray-400">
           Toute cette documentation est disponible dans des formats structurés, faciles à ingérer
@@ -423,10 +485,11 @@ const pluginExample = examples.find((e) => e.id === 'plugin')!
         </div>
       </section>
 
-      <footer class="mt-16 border-t border-gray-200 pt-6 text-sm text-gray-500 dark:border-gray-800">
-        {{ meta.name }} v{{ meta.version }} — Licence {{ meta.license }} —
-        <a :href="meta.repository" class="underline" target="_blank" rel="noopener">GitHub</a>
-      </footer>
+        <footer class="mt-16 border-t border-gray-200 pt-6 text-sm text-gray-500 dark:border-gray-800">
+          {{ meta.name }} v{{ meta.version }} — Licence {{ meta.license }} —
+          <a :href="meta.repository" class="underline" target="_blank" rel="noopener">GitHub</a>
+        </footer>
+      </main>
     </div>
   </div>
 </template>

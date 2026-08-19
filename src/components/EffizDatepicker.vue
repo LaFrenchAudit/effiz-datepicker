@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 import './datepicker.css'
 import EffizCalendar from './EffizCalendar.vue'
 import type { DateInput, DatepickerModel, DatepickerType, DisabledDateFn } from '../types'
@@ -83,11 +83,18 @@ const emit = defineEmits<{
 }>()
 
 const open = ref(false)
-const dropUp = ref(false)
 const rootRef = ref<HTMLElement | null>(null)
 const inputRef = ref<HTMLInputElement | null>(null)
 const dropdownRef = ref<HTMLElement | null>(null)
 const calendarRef = ref<InstanceType<typeof EffizCalendar> | null>(null)
+const dropdownStyle = ref<Record<string, string>>({})
+
+// The dropdown is promoted to the browser top layer via the Popover API so it
+// is never clipped by (nor hidden behind) an ancestor — including a modal
+// <dialog> or an overflow:hidden container. Falls back to fixed positioning
+// when the Popover API is unavailable.
+const supportsPopover =
+  typeof HTMLElement !== 'undefined' && typeof HTMLElement.prototype.showPopover === 'function'
 
 // ------------------------------------------------------------- Display value
 
@@ -126,17 +133,38 @@ function openPopover() {
   if (props.disabled || open.value) return
   open.value = true
   emit('open')
-  updatePlacement()
   document.addEventListener('mousedown', onDocumentPointer, true)
-  // Move focus into the grid for keyboard users.
-  window.setTimeout(() => calendarRef.value?.focusActiveCell(), 0)
+  window.addEventListener('scroll', updatePlacement, true)
+  window.addEventListener('resize', updatePlacement)
+  void nextTick(() => {
+    const dd = dropdownRef.value
+    if (dd && supportsPopover && !dd.matches(':popover-open')) {
+      try {
+        dd.showPopover()
+      } catch {
+        /* already shown / unsupported */
+      }
+    }
+    updatePlacement()
+    calendarRef.value?.focusActiveCell()
+  })
 }
 
 function closePopover(focusInput = false) {
   if (!open.value) return
+  const dd = dropdownRef.value
+  if (dd && supportsPopover && dd.matches(':popover-open')) {
+    try {
+      dd.hidePopover()
+    } catch {
+      /* already hidden */
+    }
+  }
   open.value = false
   emit('close')
   document.removeEventListener('mousedown', onDocumentPointer, true)
+  window.removeEventListener('scroll', updatePlacement, true)
+  window.removeEventListener('resize', updatePlacement)
   if (focusInput) inputRef.value?.focus()
 }
 
@@ -144,16 +172,30 @@ function togglePopover() {
   open.value ? closePopover() : openPopover()
 }
 
+// Position the (top-layer) dropdown under the input, flipping up when there is
+// not enough room below, and clamped inside the viewport.
 function updatePlacement() {
-  window.requestAnimationFrame(() => {
-    const input = rootRef.value
-    const dropdown = dropdownRef.value
-    if (!input || !dropdown) return
-    const inputRect = input.getBoundingClientRect()
-    const dropdownHeight = dropdown.offsetHeight
-    const spaceBelow = window.innerHeight - inputRect.bottom
-    dropUp.value = spaceBelow < dropdownHeight + 16 && inputRect.top > dropdownHeight + 16
-  })
+  const control = rootRef.value
+  const dropdown = dropdownRef.value
+  if (!control || !dropdown) return
+  const rect = control.getBoundingClientRect()
+  const gap = 8
+  const ddHeight = dropdown.offsetHeight || 360
+  const ddWidth = dropdown.offsetWidth || rect.width
+  const spaceBelow = window.innerHeight - rect.bottom
+  const flipUp = spaceBelow < ddHeight + gap && rect.top > ddHeight + gap
+  const top = flipUp ? rect.top - ddHeight - gap : rect.bottom + gap
+  let left = rect.left
+  const maxLeft = window.innerWidth - ddWidth - 8
+  if (left > maxLeft) left = Math.max(8, maxLeft)
+  if (left < 8) left = 8
+  dropdownStyle.value = {
+    position: 'fixed',
+    inset: 'auto',
+    top: `${Math.round(top)}px`,
+    left: `${Math.round(left)}px`,
+    margin: '0',
+  }
 }
 
 function onDocumentPointer(event: MouseEvent) {
@@ -215,6 +257,8 @@ watch(
 
 onBeforeUnmount(() => {
   document.removeEventListener('mousedown', onDocumentPointer, true)
+  window.removeEventListener('scroll', updatePlacement, true)
+  window.removeEventListener('resize', updatePlacement)
 })
 
 // Shared calendar props forwarded to <EffizCalendar>.
@@ -313,26 +357,25 @@ defineExpose({ open: openPopover, close: closePopover, toggle: togglePopover })
       </button>
     </div>
 
-    <Transition name="effiz-dp-fade">
-      <div
-        v-if="open"
-        ref="dropdownRef"
-        class="effiz-dp__dropdown"
-        :class="{ 'effiz-dp__dropdown--top': dropUp }"
-        role="dialog"
-        aria-modal="false"
-        @keydown="onPanelKeydown"
-      >
-        <EffizCalendar
-          ref="calendarRef"
-          :model-value="modelValue"
-          v-bind="calendarProps"
-          @update:model-value="onCalendarUpdate"
-          @change="onCalendarChange"
-          @select="onCalendarSelect"
-          @range-complete="onRangeComplete"
-        />
-      </div>
-    </Transition>
+    <div
+      v-if="open"
+      ref="dropdownRef"
+      class="effiz-dp__dropdown"
+      :popover="supportsPopover ? 'manual' : undefined"
+      :style="dropdownStyle"
+      role="dialog"
+      aria-modal="false"
+      @keydown="onPanelKeydown"
+    >
+      <EffizCalendar
+        ref="calendarRef"
+        :model-value="modelValue"
+        v-bind="calendarProps"
+        @update:model-value="onCalendarUpdate"
+        @change="onCalendarChange"
+        @select="onCalendarSelect"
+        @range-complete="onRangeComplete"
+      />
+    </div>
   </div>
 </template>

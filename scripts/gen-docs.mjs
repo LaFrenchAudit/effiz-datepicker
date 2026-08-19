@@ -29,6 +29,12 @@ const here = dirname(fileURLToPath(import.meta.url))
 const outDir = resolve(here, '../public')
 mkdirSync(outDir, { recursive: true })
 
+// The Vue app reads the version from import.meta.env at Vite build time; this
+// Node script gets it from the environment so api.json/llms*.txt stay in sync.
+if (process.env.VITE_APP_VERSION) {
+  meta.version = process.env.VITE_APP_VERSION
+}
+
 const base = meta.demo.replace(/\/$/, '')
 
 /* --------------------------------------------------------------- api.json */
@@ -179,6 +185,7 @@ ${examples.map((ex) => `### ${ex.title}\n${ex.description}\n\n${code(ex.lang, ex
 - En \`type="month"\`, la date émise est le **1er du mois** ; en \`type="year"\`, le **1er janvier**.
 - En mode \`range\`, le composant est *controlled* : réinjectez la valeur via \`v-model\` pour que la seconde sélection complète la plage.
 - \`min\`/\`max\` et \`disabledDate\` sont comparés à la **granularité de \`type\`**.
+- Le calendrier s'ouvre dans le **top layer** du navigateur (Popover API). Il fonctionne donc sans découpage à l'intérieur d'un \`<dialog>\` modal ou d'un conteneur \`overflow: hidden\`, sans configuration. Repli automatique en positionnement \`fixed\` sur les navigateurs sans Popover API.
 `
 
 writeFileSync(resolve(outDir, 'llms-full.txt'), full, 'utf8')
