@@ -1,4 +1,4 @@
-# @effiz/datepicker
+# @lafrenchaudit/effiz-datepicker
 
 Un composant **datepicker pour Vue 3** au style [Flowbite](https://flowbite.com/docs/plugins/datepicker/),
 **sans dépendance à Flowbite**. Autonome, léger (~6 kB gzip JS + ~1,5 kB gzip CSS) et entièrement typé.
@@ -21,13 +21,25 @@ Un composant **datepicker pour Vue 3** au style [Flowbite](https://flowbite.com/
 
 ## Installation
 
+Le package est publié sur **GitHub Packages** (registre privé de l'orga). Dans le projet
+consommateur, mappe le scope `@lafrenchaudit` vers ce registre, dans un fichier `.npmrc` :
+
+```ini
+# .npmrc (à la racine du projet consommateur)
+@lafrenchaudit:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}
+```
+
+`GITHUB_TOKEN` = un Personal Access Token (classic) avec le scope **`read:packages`**, exporté
+dans l'environnement (`export GITHUB_TOKEN=…`), ou écrit en dur dans un `.npmrc` non versionné.
+
 ```bash
-npm install @effiz/datepicker
+npm install @lafrenchaudit/effiz-datepicker
 ```
 
 ```ts
-import { EffizDatepicker } from '@effiz/datepicker'
-import '@effiz/datepicker/style.css'
+import { EffizDatepicker } from '@lafrenchaudit/effiz-datepicker'
+import '@lafrenchaudit/effiz-datepicker/style.css'
 ```
 
 ## Démarrage rapide
@@ -35,8 +47,8 @@ import '@effiz/datepicker/style.css'
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import { EffizDatepicker } from '@effiz/datepicker'
-import '@effiz/datepicker/style.css'
+import { EffizDatepicker } from '@lafrenchaudit/effiz-datepicker'
+import '@lafrenchaudit/effiz-datepicker/style.css'
 
 const date = ref<Date | null>(null)
 </script>
@@ -127,31 +139,20 @@ publié par défaut, ou réseau Docker partagé — voir les commentaires du `do
 > Image GHCR : rends le package **public** (Packages → Package settings → Change visibility) pour
 > un pull anonyme par Watchtower, ou monte un `config.json` avec un token de pull (voir le compose).
 
-## Publication de la librairie (npm)
+## Publication de la librairie (GitHub Packages)
 
-La librairie est publiée sur **npmjs.com** sous `@effiz/datepicker`, à chaque **release GitHub**,
-par `.github/workflows/npm-publish.yml`. L'authentification se fait par **Trusted Publishing
-(OIDC)** : GitHub s'authentifie directement auprès de npm, **sans token ni secret à stocker**. Le
+La librairie est publiée sur **GitHub Packages** sous `@lafrenchaudit/effiz-datepicker`, à chaque
+**release GitHub**, par `.github/workflows/npm-publish.yml`. L'authentification utilise le
+**`GITHUB_TOKEN`** de l'exécution — **aucun compte npmjs.com, aucun token à créer, aucune 2FA**. Le
 workflow aligne la version sur le tag (sans le `v`), reconstruit `dist/` (`prepublishOnly`) puis
-`npm publish`.
+`npm publish` vers `npm.pkg.github.com`.
 
-Amorçage (une seule fois — l'OIDC ne peut pas créer un package qui n'existe pas encore) :
+Publier une version = créer une **release GitHub** avec le tag voulu (ex. `v0.1.0`). La même
+release déclenche aussi l'image de doc. Le package apparaît sous _Repo → Packages_ et hérite de la
+visibilité du dépôt (privé par défaut).
 
-1. **Activer la 2FA** sur le compte npm (npm l'impose pour publier).
-2. **Premier publish manuel** pour créer le package :
-   ```bash
-   npm login          # avec 2FA
-   npm ci
-   npm publish        # saisir l'OTP ; crée @effiz/datepicker (public)
-   ```
-3. Sur npmjs.com : `@effiz/datepicker → Settings → Trusted Publisher → GitHub Actions`, avec le
-   dépôt `LaFrenchAudit/effiz-datepicker` et le workflow `npm-publish.yml`.
+Pré-requis : aucun côté publication. Vérifie juste, si besoin, que _Settings → Actions → General →
+Workflow permissions_ autorise l'écriture (le workflow déclare déjà `packages: write`).
 
-Ensuite, publier une version = créer une **release GitHub** (tag `> 0.1.0`, la version amorcée). La
-CI publie alors via OIDC, sans secret. La même release déclenche aussi l'image de doc.
-
-Côté projet consommateur, rien de spécial (package public) :
-
-```bash
-npm install @effiz/datepicker
-```
+Côté projet consommateur, voir **Installation** ci-dessus : un `.npmrc` mappant le scope
+`@lafrenchaudit` vers `https://npm.pkg.github.com` + un PAT `read:packages`.

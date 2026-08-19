@@ -18,7 +18,7 @@ const VERSION =
   '0.0.0-dev'
 
 export const meta = {
-  name: '@effiz/datepicker',
+  name: '@lafrenchaudit/effiz-datepicker',
   version: VERSION,
   title: 'Effiz Datepicker',
   description:
@@ -28,9 +28,9 @@ export const meta = {
   license: 'MIT',
   framework: 'Vue 3 (>=3.3)',
   peerDependencies: { vue: '^3.3.0' },
-  install: 'npm install @effiz/datepicker',
+  install: 'npm install @lafrenchaudit/effiz-datepicker',
   components: ['EffizDatepicker', 'EffizCalendar'],
-  cssImport: "import '@effiz/datepicker/style.css'",
+  cssImport: "import '@lafrenchaudit/effiz-datepicker/style.css'",
   bundleSize: '~6 kB gzip JS + ~1,5 kB gzip CSS',
 }
 
@@ -350,7 +350,7 @@ export const examples = [
     title: 'Installation',
     lang: 'bash',
     description: 'Vue 3 (>= 3.3) est une peerDependency.',
-    code: 'npm install @effiz/datepicker',
+    code: 'npm install @lafrenchaudit/effiz-datepicker',
   },
   {
     id: 'quickstart',
@@ -359,8 +359,8 @@ export const examples = [
     description: 'Importez le composant et la feuille de style une fois.',
     code: `<script setup lang="ts">
 import { ref } from 'vue'
-import { EffizDatepicker } from '@effiz/datepicker'
-import '@effiz/datepicker/style.css'
+import { EffizDatepicker } from '@lafrenchaudit/effiz-datepicker'
+import '@lafrenchaudit/effiz-datepicker/style.css'
 
 const date = ref<Date | null>(null)
 </script>
@@ -375,8 +375,8 @@ const date = ref<Date | null>(null)
     lang: 'ts',
     description: 'Enregistre <EffizDatepicker> et <EffizCalendar> globalement.',
     code: `import { createApp } from 'vue'
-import { EffizDatepickerPlugin } from '@effiz/datepicker'
-import '@effiz/datepicker/style.css'
+import { EffizDatepickerPlugin } from '@lafrenchaudit/effiz-datepicker'
+import '@lafrenchaudit/effiz-datepicker/style.css'
 import App from './App.vue'
 
 createApp(App).use(EffizDatepickerPlugin).mount('#app')`,
@@ -402,7 +402,7 @@ createApp(App).use(EffizDatepickerPlugin).mount('#app')`,
     description: 'Ajoutez `range` ; le v-model devient [début, fin].',
     code: `<script setup lang="ts">
 import { ref } from 'vue'
-import { EffizDatepicker, type RangeValue } from '@effiz/datepicker'
+import { EffizDatepicker, type RangeValue } from '@lafrenchaudit/effiz-datepicker'
 
 const plage = ref<RangeValue>([null, null])
 </script>
@@ -440,7 +440,7 @@ const plage = ref<RangeValue>([null, null])
     description: 'Restreindre à l’année en cours, sans week-ends.',
     code: `<script setup lang="ts">
 import { ref } from 'vue'
-import { EffizDatepicker } from '@effiz/datepicker'
+import { EffizDatepicker } from '@lafrenchaudit/effiz-datepicker'
 
 const date = ref<Date | null>(null)
 const min = new Date(new Date().getFullYear(), 0, 1)
@@ -476,7 +476,7 @@ const noWeekends = (d: Date) => d.getDay() === 0 || d.getDay() === 6
     description: 'Ouvrir/fermer via une ref de template.',
     code: `<script setup lang="ts">
 import { ref } from 'vue'
-import { EffizDatepicker } from '@effiz/datepicker'
+import { EffizDatepicker } from '@lafrenchaudit/effiz-datepicker'
 
 const picker = ref<InstanceType<typeof EffizDatepicker>>()
 </script>
