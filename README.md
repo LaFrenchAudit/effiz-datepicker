@@ -130,18 +130,25 @@ publié par défaut, ou réseau Docker partagé — voir les commentaires du `do
 ## Publication de la librairie (npm)
 
 La librairie est publiée sur **npmjs.com** sous `@effiz/datepicker`, à chaque **release GitHub**,
-par `.github/workflows/npm-publish.yml`. Le workflow aligne la version publiée sur le tag de la
-release (sans le `v`), reconstruit `dist/` (via `prepublishOnly`) puis `npm publish`.
+par `.github/workflows/npm-publish.yml`. L'authentification se fait par **Trusted Publishing
+(OIDC)** : GitHub s'authentifie directement auprès de npm, **sans token ni secret à stocker**. Le
+workflow aligne la version sur le tag (sans le `v`), reconstruit `dist/` (`prepublishOnly`) puis
+`npm publish`.
 
-Pré-requis (une seule fois) :
+Amorçage (une seule fois — l'OIDC ne peut pas créer un package qui n'existe pas encore) :
 
-- Posséder l'organisation npm **`@effiz`** (l'utilisateur qui publie doit y avoir le droit).
-- Créer un **access token npm** de type _Automation_ et l'ajouter en secret du dépôt :
-  `Settings → Secrets and variables → Actions → New repository secret`, nom **`NPM_TOKEN`**.
+1. **Activer la 2FA** sur le compte npm (npm l'impose pour publier).
+2. **Premier publish manuel** pour créer le package :
+   ```bash
+   npm login          # avec 2FA
+   npm ci
+   npm publish        # saisir l'OTP ; crée @effiz/datepicker (public)
+   ```
+3. Sur npmjs.com : `@effiz/datepicker → Settings → Trusted Publisher → GitHub Actions`, avec le
+   dépôt `LaFrenchAudit/effiz-datepicker` et le workflow `npm-publish.yml`.
 
-Publier une version = créer une release GitHub avec le tag voulu (ex. `v1.0.0`). La même release
-déclenche aussi la publication de l'image de doc. Pour un essai manuel : onglet _Actions →
-Publish package to npm → Run workflow_ (publie alors la version présente dans `package.json`).
+Ensuite, publier une version = créer une **release GitHub** (tag `> 0.1.0`, la version amorcée). La
+CI publie alors via OIDC, sans secret. La même release déclenche aussi l'image de doc.
 
 Côté projet consommateur, rien de spécial (package public) :
 
