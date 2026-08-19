@@ -6,8 +6,8 @@ on:
     types: [published]
   workflow_dispatch:
 
-# id-token: write => authentification OIDC "Trusted Publishing" (aucun token npm
-# à stocker, aucune 2FA à gérer). contents: read pour le checkout.
+# id-token: write => authentification OIDC "Trusted Publishing" (aucun secret).
+# contents: read pour le checkout.
 permissions:
   contents: read
   id-token: write
@@ -16,6 +16,9 @@ jobs:
   publish:
     name: Build and publish to npm
     runs-on: self-hosted
+    # Exposé pour brancher l'amorçage par token (voir plus bas). Vide => OIDC.
+    env:
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
     steps:
       - uses: actions/checkout@v5
 
@@ -24,7 +27,6 @@ jobs:
         with:
           node-version: '24'
           cache: npm
-          registry-url: 'https://registry.npmjs.org'
 
       # Trusted Publishing (OIDC) nécessite npm >= 11.5.1.
       - name: Ensure recent npm
@@ -38,7 +40,19 @@ jobs:
         if: github.event_name == 'release'
         run: npm version "${GITHUB_REF_NAME#v}" --no-git-tag-version --allow-same-version
 
-      # `prepublishOnly` (npm run build) reconstruit dist/ juste avant le publish.
-      # OIDC : pas de NODE_AUTH_TOKEN, npm échange le jeton OIDC automatiquement.
-      - name: Publish
+      # Régime permanent : OIDC, aucun secret. `prepublishOnly` build dist/.
+      - name: Publish (OIDC trusted publishing)
+        if: ${{ env.NPM_TOKEN == '' }}
         run: npm publish
+
+      # Amorçage ponctuel : l'OIDC ne peut pas créer un package inexistant, donc
+      # on autorise un publish par token *bypass 2FA* si le secret NPM_TOKEN est
+      # défini. À supprimer une fois l'OIDC configuré sur le package.
+      - name: Publish (bootstrap via npm token)
+        if: ${{ env.NPM_TOKEN != '' }}
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" > .npmrc
+          npm publish
+          rm -f .npmrc
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

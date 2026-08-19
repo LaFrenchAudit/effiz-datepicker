@@ -137,15 +137,18 @@ workflow aligne la version sur le tag (sans le `v`), reconstruit `dist/` (`prepu
 
 Amorçage (une seule fois — l'OIDC ne peut pas créer un package qui n'existe pas encore) :
 
-1. **Activer la 2FA** sur le compte npm (npm l'impose pour publier).
-2. **Premier publish manuel** pour créer le package :
-   ```bash
-   npm login          # avec 2FA
-   npm ci
-   npm publish        # saisir l'OTP ; crée @effiz/datepicker (public)
-   ```
+1. **Activer la 2FA** sur le compte npm. npm n'accepte plus le TOTP : il faut un **passkey /
+   security key** (WebAuthn). Sans clé USB physique, choisis dans la popup WebAuthn *« use a phone
+   or tablet »* (passkey stocké sur ton téléphone) ou un **gestionnaire de mots de passe**
+   (1Password, Bitwarden…).
+2. **Créer le package** (une des deux voies) :
+   - _Local / serveur_ : `npm login` (auth navigateur/passkey) puis `npm ci && npm publish`.
+   - _100 % navigateur + CI_ : créer un **granular token « bypass 2FA »**, l'ajouter en secret
+     **`NPM_TOKEN`**, lancer le workflow (_Actions → Publish package to npm → Run workflow_). Le job
+     détecte le token et fait le publish d'amorçage.
 3. Sur npmjs.com : `@effiz/datepicker → Settings → Trusted Publisher → GitHub Actions`, avec le
-   dépôt `LaFrenchAudit/effiz-datepicker` et le workflow `npm-publish.yml`.
+   dépôt `LaFrenchAudit/effiz-datepicker` et le workflow `npm-publish.yml`. Puis **supprimer le
+   secret `NPM_TOKEN`** (et le token) : les publishes suivants passent par OIDC.
 
 Ensuite, publier une version = créer une **release GitHub** (tag `> 0.1.0`, la version amorcée). La
 CI publie alors via OIDC, sans secret. La même release déclenche aussi l'image de doc.
