@@ -41,7 +41,7 @@ const base = meta.demo.replace(/\/$/, '')
 
 const apiJson = {
   $generator: 'scripts/gen-docs.mjs',
-  $note: 'Machine-readable API for @effiz/datepicker. Single source of truth: src/demo/api-spec.js.',
+  $note: 'Machine-readable API for @lafrenchaudit/effiz-datepicker. Single source of truth: src/demo/api-spec.js.',
   name: meta.name,
   version: meta.version,
   title: meta.title,

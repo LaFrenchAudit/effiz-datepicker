@@ -29,8 +29,8 @@ export {
  * `<EffizDatepicker>` and `<EffizCalendar>`.
  *
  * ```ts
- * import { EffizDatepickerPlugin } from '@effiz/datepicker'
- * import '@effiz/datepicker/style.css'
+ * import { EffizDatepickerPlugin } from '@lafrenchaudit/effiz-datepicker'
+ * import '@lafrenchaudit/effiz-datepicker/style.css'
  * app.use(EffizDatepickerPlugin)
  * ```
  */

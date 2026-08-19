@@ -1,10 +1,14 @@
 {
-  "name": "@effiz/datepicker",
+  "name": "@lafrenchaudit/effiz-datepicker",
   "version": "0.1.0",
   "description": "A Flowbite-style, themeable datepicker component for Vue 3 with date, month, year and range selection.",
   "type": "module",
   "license": "MIT",
   "author": "La French Audit",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LaFrenchAudit/effiz-datepicker.git"
+  },
   "keywords": [
     "vue",
     "vue3",
@@ -47,7 +51,7 @@
     "prepublishOnly": "npm run build"
   },
   "publishConfig": {
-    "access": "public"
+    "registry": "https://npm.pkg.github.com"
   },
   "peerDependencies": {
     "vue": "^3.3.0"
